@@ -7,25 +7,25 @@ import useHttp from './hooks/use-http';
 function App() {
     const [tasks, setTasks] = useState([]);
 
-    function transformTasks(taskObj) {
-        const loadedTasks = [];
-
-        for (const taskKey in taskObj) {
-            loadedTasks.push({id: taskKey, text: taskObj[taskKey].text});
-        }
-
-        setTasks(loadedTasks);
-    }
-
     const httpConfig = {
         url: process.env.REACT_APP_FIREBASE_URL,
     }
 
-    const {isLoading, error, sendRequest: fetchTasks} = useHttp(httpConfig, transformTasks)
+    const {isLoading, error, sendRequest: fetchTasks} = useHttp()
 
     useEffect(() => {
-        fetchTasks();
-    }, []);
+        const transformTasks = (taskObj) => {
+            const loadedTasks = [];
+
+            for (const taskKey in taskObj) {
+                loadedTasks.push({id: taskKey, text: taskObj[taskKey].text});
+            }
+
+            setTasks(loadedTasks);
+        };
+
+        fetchTasks(httpConfig, transformTasks);
+    }, [fetchTasks]);
 
     const taskAddHandler = (task) => {
         setTasks((prevTasks) => prevTasks.concat(task));
